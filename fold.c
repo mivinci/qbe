@@ -147,6 +147,12 @@ foldint(Con *res, int op, int w, Con *cl, Con *cr)
 		else
 			die("unreachable");
 	}
+	/* a narrow (w) result carries its value in the low 32 bits
+	 * only; the arithmetic above is 64-bit and does not wrap, so
+	 * callers folding w adds of w consts (GVN's assoccon, negcon)
+	 * would else bake the carry into the con */
+	if (!w)
+		x &= 0xffffffff;
 	*res = (Con){.type=typ, .sym=sym, .bits={.i=x}};
 	return 0;
 }
